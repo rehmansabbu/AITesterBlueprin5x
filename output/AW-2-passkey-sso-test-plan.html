@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Draft QA test plan for Jira AW-2: Passkey and SSO login options on the VWO login page.">
+  <title>AW-2 | Passkey and SSO Login Test Plan</title>
+  <style>
+    :root {
+      --navy: #17345f;
+      --blue: #2364d2;
+      --ink: #202b3a;
+      --muted: #5b6878;
+      --line: #d8e1ec;
+      --pale: #f2f6fb;
+      --white: #fff;
+      --amber: #fff4d6;
+      --red: #a21d24;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #eaf0f7;
+      color: var(--ink);
+      font: 9.5pt/1.45 "Segoe UI", Arial, sans-serif;
+    }
+    .document {
+      max-width: 1120px;
+      margin: 28px auto;
+      padding: 44px 52px;
+      background: var(--white);
+      box-shadow: 0 5px 24px rgb(23 52 95 / 12%);
+    }
+    header {
+      position: relative;
+      padding: 28px 32px;
+      color: var(--white);
+      background: linear-gradient(120deg, var(--navy), var(--blue));
+      border-radius: 10px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .brand img { width: 42px; height: 42px; object-fit: contain; background: white; border-radius: 50%; }
+    .brand span { color: #edf3ff; font-weight: 700; }
+    header .label {
+      margin: 0;
+      color: #dce8ff;
+      font-size: 8.5pt;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    header h1 { margin: 8px 0; font-size: 27pt; line-height: 1.12; }
+    header .subtitle { margin: 0; color: #edf3ff; font-size: 11pt; }
+    .meta { display: flex; flex-wrap: wrap; gap: 7px 22px; margin-top: 20px; font-size: 8.5pt; }
+    h2 {
+      margin: 28px 0 9px;
+      padding-bottom: 5px;
+      color: var(--navy);
+      border-bottom: 2px solid var(--line);
+      font-size: 15pt;
+      break-after: avoid;
+    }
+    h3 { margin: 16px 0 5px; color: var(--navy); font-size: 10.5pt; break-after: avoid; }
+    p { margin: 5px 0 9px; }
+    ul, ol { margin: 5px 0 10px; padding-left: 21px; }
+    li { margin: 2px 0; }
+    table {
+      width: 100%;
+      margin: 9px 0 14px;
+      border-collapse: collapse;
+      font-size: 8.25pt;
+    }
+    th, td {
+      padding: 6px 7px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--navy); background: var(--pale); }
+    tr { break-inside: avoid; }
+    .priority { font-weight: 700; white-space: nowrap; }
+    .p0 { color: var(--red); }
+    .p1 { color: #a34b08; }
+    .p2 { color: #765900; }
+    .callout {
+      margin: 12px 0;
+      padding: 10px 13px;
+      background: var(--pale);
+      border-left: 4px solid var(--blue);
+    }
+    .warning { background: var(--amber); border-left-color: #bf8200; }
+    .small { color: var(--muted); font-size: 8pt; }
+    .status { font-weight: 700; white-space: nowrap; }
+    footer {
+      margin-top: 24px;
+      padding-top: 9px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-size: 8pt;
+    }
+    @page { size: A4; margin: 14mm; }
+    @media print {
+      body { background: #fff; }
+      .document { max-width: none; margin: 0; padding: 0; box-shadow: none; }
+      header, th { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      h2, h3 { break-after: avoid; }
+    }
+    @media (max-width: 720px) {
+      .document { margin: 0; padding: 20px 14px; }
+      header { padding: 22px 18px; }
+      header h1 { font-size: 23pt; }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="document">
+    <header>
+      <div class="brand">
+        <img src="../Chapter_00_SKILL_Basics/01_advance_skills/testplan-creator-skill_a/misc/company.png" alt="TheTestingAcademy logo">
+        <span>TheTestingAcademy</span>
+      </div>
+      <p class="label">Quality Assurance | Test Plan | Draft</p>
+      <h1>Passkey and SSO Login Options</h1>
+      <p class="subtitle">VWO login page | Jira AW-2</p>
+      <div class="meta">
+        <span><strong>Issue:</strong> AW-2 (Story, High)</span>
+        <span><strong>Version:</strong> 1.0</span>
+        <span><strong>Status:</strong> Draft pending human review</span>
+        <span><strong>Prepared:</strong> 28 October 2026</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>Document overview</h2>
+      <table>
+        <tbody>
+          <tr><th scope="row">Ticket summary</th><td>[VWO] Add Passkey and SSO Login Options to VWO Login Page</td></tr>
+          <tr><th scope="row">Test basis</th><td>AW-2 description and acceptance criteria retrieved from Jira. No linked issues, components, labels, attachments, fix version, or sprint were returned.</td></tr>
+          <tr><th scope="row">Company profile</th><td>Company details supplied with the skill: VWO is described as a Bingify product, focused on A/B testing, with 5,000 employees. This profile was not independently verified.</td></tr>
+          <tr><th scope="row">Purpose</th><td>Assess the two new login methods while preserving a clear view of missing requirements. This plan is not approved or final.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout warning"><strong>Approval note:</strong> Multiple release-relevant details remain undefined. Resolve the questions in section 3 and obtain QA/product approval before treating this plan as a sign-off basis.</div>
+    </section>
+
+    <section>
+      <h2>1. Scope and objectives</h2>
+      <p><strong>Objective:</strong> Verify that the VWO login page presents the SSO and Passkey options in the specified order; successful authentication reaches the dashboard; failures and unsupported environments give appropriate guidance; and authentication uses secure protocols without exposing sensitive data in the UI or network logs.</p>
+      <h3>In scope</h3>
+      <ul>
+        <li>Visibility and placement of "Sign in using SSO" and "Sign in with Passkey" below "Sign in with Google".</li>
+        <li>Successful and failed SSO authentication, including each configured identity provider.</li>
+        <li>Successful Passkey authentication when a registered passkey is available and verified.</li>
+        <li>Passkey-unavailable, authentication-failure, and unsupported-browser/device feedback.</li>
+        <li>Compatibility across the product-approved browser/device support matrix.</li>
+        <li>Use of the applicable OAuth, SAML, or WebAuthn protocol and checks for sensitive-data exposure in UI and network logs.</li>
+        <li>Focused regression checks for existing login options, based on the ticket's "alongside existing authentication methods" statement.</li>
+      </ul>
+      <h3>Out of scope until clarified</h3>
+      <ul>
+        <li>Identity-provider configuration or behavior outside the VWO integration boundary.</li>
+        <li>Passkey enrollment, account recovery, account linking, or changes to existing authentication policy; AW-2 does not define these flows.</li>
+        <li>Performance, accessibility, localization, and security certification targets not specified in AW-2.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>2. Acceptance criteria and traceability</h2>
+      <table>
+        <thead><tr><th>ID</th><th>Acceptance criterion from AW-2</th><th>Planned coverage</th></tr></thead>
+        <tbody>
+          <tr><td>AC-1</td><td>Both new buttons appear on the login page, below "Sign in with Google".</td><td>TS-01</td></tr>
+          <tr><td>AC-2</td><td>Valid SSO credentials authenticate the user and redirect to the dashboard; invalid credentials show an appropriate error.</td><td>TS-02, TS-03</td></tr>
+          <tr><td>AC-3</td><td>A registered, verified passkey authenticates the user and redirects to the dashboard; no available passkey produces fallback or guidance.</td><td>TS-04, TS-05</td></tr>
+          <tr><td>AC-4</td><td>Appropriate errors appear for failed SSO authentication, failed Passkey authentication, and unsupported browser/device.</td><td>TS-03, TS-06, TS-07</td></tr>
+          <tr><td>AC-5</td><td>Passkey works on supported browsers/devices; SSO works with all configured identity providers.</td><td>TS-02, TS-08</td></tr>
+          <tr><td>AC-6</td><td>Authentication follows secure OAuth/SAML/WebAuthn protocols; sensitive data is not exposed in the UI or network logs.</td><td>TS-09</td></tr>
+        </tbody>
+      </table>
+      <p class="small">AC identifiers are assigned here for traceability; they do not add requirements beyond the ticket description.</p>
+    </section>
+
+    <section>
+      <h2>3. Gaps and questions for the author</h2>
+      <table>
+        <thead><tr><th>#</th><th>Area</th><th>Finding</th><th>Question to author</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>SSO configuration</td><td>Configured identity providers are not named.</td><td>Which providers, environments, and configurations must pass before release?</td></tr>
+          <tr><td>2</td><td>SSO outcomes</td><td>Redirect destination details and expected behavior for provider outage, cancellation, timeout, or malformed response are not defined.</td><td>What destination and user-facing behavior are expected for each outcome?</td></tr>
+          <tr><td>3</td><td>Passkeys</td><td>Supported browsers/devices, platform authenticator requirements, and enrolled-account setup are not listed.</td><td>What exact browser/device matrix and test-account setup should QA use?</td></tr>
+          <tr><td>4</td><td>Passkey fallback</td><td>"Fallback or guidance message" does not define text, action, or fallback authentication path.</td><td>What should users see and be able to do when no passkey is available?</td></tr>
+          <tr><td>5</td><td>Error handling</td><td>Error content, localization, retry behavior, lockout/rate-limit behavior, and recovery from failed authentication are unspecified.</td><td>What messages and retry/security policies are approved for each failure state?</td></tr>
+          <tr><td>6</td><td>Security</td><td>Protocols are named, but the flow-to-protocol mapping and required security checks are not defined.</td><td>Which protocol applies to each provider and what security validation is release-gating?</td></tr>
+          <tr><td>7</td><td>Privacy/logging</td><td>"Network logs" and sensitive data are not scoped; observability and retention requirements are absent.</td><td>Which logs, fields, and capture points must be inspected, and what data must never appear?</td></tr>
+          <tr><td>8</td><td>Authorization / account state</td><td>Roles, eligible account types, disabled/unverified accounts, and expected access restrictions are not described.</td><td>Which account states and roles must be tested for each login method?</td></tr>
+          <tr><td>9</td><td>Regression</td><td>New buttons are to appear alongside existing methods, but the regression scope is not stated.</td><td>Which existing login flows and dashboard routes are release-critical regression checks?</td></tr>
+          <tr><td>10</td><td>Accessibility / responsive</td><td>No keyboard, screen-reader, focus, contrast, layout, or touch requirements are specified.</td><td>Which accessibility standard and responsive breakpoints are required?</td></tr>
+          <tr><td>11</td><td>Quality targets</td><td>No performance, availability, audit, or monitoring target is provided.</td><td>Are measurable non-functional targets required for this change?</td></tr>
+          <tr><td>12</td><td>Delivery context</td><td>Test environment, flags, test data, owner, sprint, and fix version are not available in the ticket response.</td><td>What environment, test accounts, feature flags, owner, and planned release window should QA use?</td></tr>
+          <tr><td>13</td><td>Design and dependencies</td><td>No attachment, mockup, linked issue, or component was returned.</td><td>Is there an approved design or dependency not linked to AW-2?</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>4. Requirement checklist</h2>
+      <p class="small">Status key: Present = explicitly stated; Ambiguous = partly stated or insufficient to test precisely; Missing = not stated in AW-2.</p>
+      <table>
+        <thead><tr><th>Checklist item</th><th>Status</th><th>Evidence / note</th></tr></thead>
+        <tbody>
+          <tr><td>Clear user story / goal</td><td class="status">Present</td><td>Story states the user goal and benefit.</td></tr>
+          <tr><td>Acceptance criteria are testable</td><td class="status">Ambiguous</td><td>Core outcomes exist; "appropriate", "supported", and "secure" need measurable definitions.</td></tr>
+          <tr><td>Happy path fully described</td><td class="status">Ambiguous</td><td>SSO and Passkey success are stated; provider setup, session, and exact dashboard destination are not.</td></tr>
+          <tr><td>Negative / error paths described</td><td class="status">Ambiguous</td><td>Credential/authentication failure and unsupported Passkey environment are named; expected behavior is incomplete.</td></tr>
+          <tr><td>Boundary and empty states</td><td class="status">Missing</td><td>No limits, empty states, or state boundaries are defined.</td></tr>
+          <tr><td>State transitions / workflow steps</td><td class="status">Ambiguous</td><td>Login-to-dashboard transitions exist; cancellation, timeout, retry, and recovery are absent.</td></tr>
+          <tr><td>Required test data</td><td class="status">Missing</td><td>No test accounts, provider accounts, or registered-passkey setup is specified.</td></tr>
+          <tr><td>Environment / config / feature flags</td><td class="status">Ambiguous</td><td>Supported environments and configured providers are referenced, not enumerated.</td></tr>
+          <tr><td>External dependencies / integrations</td><td class="status">Ambiguous</td><td>Identity providers are implied, but providers and dependencies are unnamed.</td></tr>
+          <tr><td>Preconditions / setup</td><td class="status">Missing</td><td>No setup instructions or account preconditions are given.</td></tr>
+          <tr><td>Performance / load expectations</td><td class="status">Missing</td><td>No performance target is specified.</td></tr>
+          <tr><td>Security / authorization</td><td class="status">Ambiguous</td><td>Secure protocols and data non-exposure are stated; authorization rules and validation details are absent.</td></tr>
+          <tr><td>Accessibility expectations</td><td class="status">Missing</td><td>No accessibility requirements are stated.</td></tr>
+          <tr><td>Internationalization / localization</td><td class="status">Missing</td><td>No language or locale behavior is stated.</td></tr>
+          <tr><td>Audit / logging / observability</td><td class="status">Ambiguous</td><td>Network logs must not expose sensitive data; audit and observability needs are not specified.</td></tr>
+          <tr><td>Impact on existing features</td><td class="status">Ambiguous</td><td>New methods are alongside existing methods; regression expectations are not specified.</td></tr>
+          <tr><td>Backward compatibility / migration</td><td class="status">Missing</td><td>No compatibility or migration requirements are stated.</td></tr>
+          <tr><td>Mobile / responsive / browser matrix</td><td class="status">Ambiguous</td><td>Passkey support varies by browser/device; exact matrix and responsive behavior are absent.</td></tr>
+          <tr><td>Rollback / feature-flag behavior</td><td class="status">Missing</td><td>No rollback or feature-flag behavior is stated.</td></tr>
+          <tr><td>Unambiguous wording</td><td class="status">Ambiguous</td><td>"Smooth", "appropriate", "supported", and "secure protocols" need clarification.</td></tr>
+          <tr><td>Terms defined consistently</td><td class="status">Ambiguous</td><td>SSO, configured provider, registered passkey, and supported environment are not defined.</td></tr>
+          <tr><td>Mockups / designs linked and aligned</td><td class="status">Missing</td><td>No attachment or design link was returned.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>5. Test scenarios</h2>
+      <p>Priority guide: <strong class="p0">P0</strong> authentication/security release blocker; <strong class="p1">P1</strong> core login behavior; <strong class="p2">P2</strong> compatibility or conditional coverage. Exact messages, provider-specific behavior, and support boundaries require approved product specifications.</p>
+      <table>
+        <thead><tr><th>ID</th><th>Priority</th><th>Type</th><th>Scenario and expected result</th><th>Maps to</th></tr></thead>
+        <tbody>
+          <tr><td>TS-01</td><td class="priority p1">P1</td><td>Positive / UI</td><td>Open the login page. Confirm both named options are visible below "Sign in with Google".</td><td>AC-1</td></tr>
+          <tr><td>TS-02</td><td class="priority p0">P0</td><td>Positive / SSO</td><td>For each configured identity provider, authenticate with a valid test account. Confirm successful login and the approved dashboard destination.</td><td>AC-2, AC-5; G-1, G-2</td></tr>
+          <tr><td>TS-03</td><td class="priority p0">P0</td><td>Negative / SSO</td><td>Attempt SSO with invalid test credentials. Confirm access is denied and an approved error is displayed without exposing sensitive data.</td><td>AC-2, AC-4; G-5</td></tr>
+          <tr><td>TS-04</td><td class="priority p0">P0</td><td>Positive / Passkey</td><td>Use an account with a registered passkey in a supported environment and complete verification. Confirm login and the approved dashboard destination.</td><td>AC-3, AC-5; G-3</td></tr>
+          <tr><td>TS-05</td><td class="priority p1">P1</td><td>Negative / Passkey</td><td>Use an account with no available registered passkey. Confirm the approved fallback or guidance message and action.</td><td>AC-3; G-4</td></tr>
+          <tr><td>TS-06</td><td class="priority p0">P0</td><td>Negative / Passkey</td><td>Cause Passkey verification to fail with a controlled test condition. Confirm authentication is denied and the approved error is shown.</td><td>AC-4; G-5</td></tr>
+          <tr><td>TS-07</td><td class="priority p1">P1</td><td>Boundary / compatibility</td><td>Attempt Passkey login in a browser/device confirmed as unsupported. Confirm the approved unsupported-environment guidance and no successful authentication.</td><td>AC-4, AC-5; G-3</td></tr>
+          <tr><td>TS-08</td><td class="priority p1">P1</td><td>Compatibility</td><td>Run Passkey login across each product-approved supported browser/device combination. Confirm successful flow where the platform supports the configured passkey.</td><td>AC-5; G-3</td></tr>
+          <tr><td>TS-09</td><td class="priority p0">P0</td><td>Security</td><td>Inspect applicable authentication exchanges and UI/network logs. Confirm the configured OAuth, SAML, or WebAuthn flow is used and sensitive data is not exposed.</td><td>AC-6; G-6, G-7</td></tr>
+          <tr><td>TS-10</td><td class="priority p1">P1</td><td>Regression</td><td>Verify existing login options remain present and usable after adding SSO and Passkey options. Confirm only approved access reaches the dashboard.</td><td>AC-1; G-9</td></tr>
+          <tr><td>TS-11</td><td class="priority p2">P2</td><td>Negative / SSO</td><td>Exercise agreed provider failure conditions such as cancellation, timeout, or unavailable provider. Record results against product-approved expected behavior.</td><td>Gap-driven; G-2, G-5</td></tr>
+          <tr><td>TS-12</td><td class="priority p2">P2</td><td>Accessibility / responsive</td><td>After requirements are approved, check keyboard access, focus order, assistive-technology labels, and responsive layout for both new options.</td><td>Gap-driven; G-10</td></tr>
+          <tr><td>TS-13</td><td class="priority p1">P1</td><td>Authorization / account state</td><td>After account eligibility rules are approved, test allowed and restricted accounts with both methods. Confirm authentication and dashboard access follow the approved policy.</td><td>Gap-driven; G-8</td></tr>
+        </tbody>
+      </table>
+      <p class="small">G-n references the numbered questions in section 3. TS-11 through TS-13 are conditional until expected behavior, policy, and release priority are approved.</p>
+    </section>
+
+    <section>
+      <h2>6. Test data and environment</h2>
+      <ul>
+        <li><strong>Data:</strong> Request valid and invalid SSO test accounts for every configured provider; an account with a registered passkey; an account with no available passkey; and a controlled failed-verification case. The ticket does not supply these accounts or setup steps.</li>
+        <li><strong>Environment / flags:</strong> Use a product-approved QA environment with SSO providers and Passkey support configured. Environment URL, flags, provider configuration, and browser/device matrix are pending.</li>
+        <li><strong>Roles / permissions:</strong> Role and account eligibility rules are unspecified. Use only product-approved test identities; confirm required roles/account states with the author.</li>
+        <li><strong>Evidence:</strong> Capture outcomes and sanitized logs only. Do not store credentials, passkey secrets, tokens, or other sensitive values in test evidence.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>7. Risks and assumptions</h2>
+      <ul>
+        <li><strong>Assumptions:</strong> "Dashboard" means the product-approved post-login destination. This plan does not assume a particular URL or redirect policy.</li>
+        <li><strong>Assumptions:</strong> The configured identity providers and supported browser/device list will be supplied by the product team before execution.</li>
+        <li><strong>Risk:</strong> Missing provider, test-account, and support-matrix details can leave authentication paths untested or produce inconsistent results.</li>
+        <li><strong>Risk:</strong> Vague security and error requirements can prevent objective release sign-off.</li>
+        <li><strong>Risk:</strong> Test logs or evidence could expose sensitive values if approved capture and redaction rules are not defined.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>8. Entry and exit criteria</h2>
+      <h3>Entry</h3>
+      <ul>
+        <li>QA build and environment are available; the feature is enabled as intended for that environment.</li>
+        <li>Product confirms configured identity providers, supported browser/device matrix, test accounts, expected errors, and dashboard destination.</li>
+        <li>Security and privacy owners define protocol mapping and safe log/evidence inspection guidance.</li>
+      </ul>
+      <h3>Exit</h3>
+      <ul>
+        <li>All approved P0 and P1 scenarios pass; failures are documented and triaged by the QA/product owner.</li>
+        <li>Every configured provider and approved supported Passkey environment has recorded results.</li>
+        <li>No unresolved critical authentication or sensitive-data exposure defect remains. The responsible QA owner approves any accepted residual risk.</li>
+        <li>Human review resolves or explicitly accepts the open questions before the plan is used for release sign-off.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>9. Resource allocation</h2>
+      <p>QA owner, product contact, identity-provider administrator, and security reviewer are not identified in AW-2. Assign owners before execution. Provider and browser/device coverage depend on access to configured test environments and accounts.</p>
+    </section>
+
+    <section>
+      <h2>10. Timeline and sprint details</h2>
+      <p>No sprint, fix version, release date, or estimate was returned for AW-2. Schedule test execution after entry criteria are met; the QA lead and product owner must provide dates and sign-off expectations.</p>
+    </section>
+
+    <section>
+      <h2>Human review gate</h2>
+      <div class="callout">
+        <p><strong>Assumed:</strong> The goal is to test the login-page options and authentication outcomes stated in AW-2, not to define new product behavior.</p>
+        <p><strong>Could not confirm:</strong> Provider list, environment, support matrix, test data, exact errors/fallbacks, security checks, role/account rules, regression boundary, owners, sprint, and release timing.</p>
+        <p><strong>Open questions blocking sign-off:</strong> Sections 3 and 4 identify missing or ambiguous requirements. Resolve them or document explicit owner-approved exceptions.</p>
+        <p><strong>Approval request:</strong> QA and product owners must review and approve or edit this draft before it is treated as approved. Do not begin test-case or automation authoring from this draft until a human approves it.</p>
+      </div>
+    </section>
+
+    <footer>
+      Draft for human review | Source: Jira AW-2 | Company profile and logo supplied in the test-plan skill materials | This document is not a final or approved test plan.
+    </footer>
+  </main>
+</body>
+</html>
