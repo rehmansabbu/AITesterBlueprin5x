@@ -1,0 +1,3 @@
+com\salesforce\automation\tests\InvalidLoginTest.class
+com\salesforce\automation\tests\ValidLoginTest.class
+com\salesforce\automation\base\BaseTest.class
