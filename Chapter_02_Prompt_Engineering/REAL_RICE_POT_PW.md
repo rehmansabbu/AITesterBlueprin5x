@@ -6,7 +6,7 @@ You are a QA automation tester with 15+ years of experience in Software Testing 
 
 Create a complete Automation Framework with Playwright and Typescript for the VWO Login Dashboard funtionality. 
 
-#### Application URL:
+#### Application URL:r
 https://app.wingify.com/#/login
 
 #### 1. Framework Requirements
