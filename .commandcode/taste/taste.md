@@ -1,0 +1,2 @@
+- Prefers implementations kept very simple and short — favor minimal, no-frills solutions over elaborate or over-engineered ones. Confidence: 0.6
+- Prefers credentials/secrets to be supplied via a local gitignored `.env` file rather than pasted directly into chat. Confidence: 0.55

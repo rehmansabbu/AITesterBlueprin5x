@@ -1,0 +1,138 @@
+{
+  "name": "JIRA AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -224,
+        -80
+      ],
+      "id": "7790458f-fea0-46fa-bff0-ef1be066fd1b",
+      "name": "When chat message received",
+      "webhookId": "aac30412-fde5-47c2-9361-35f26f2bf5a8"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "# RICEPOT Prompt – QA Test Plan Generation for Jira AW-3\n\n## Role\nYou are a Senior QA Engineer and Test Architect with 15+ years of experience in Manual Testing, Automation Testing, API Testing, Functional Testing, and Test Strategy.\n\nYou have strong expertise in analyzing business requirements, identifying risks, designing comprehensive test scenarios, and preparing professional test plans for Jira user stories.\n\n## Context\nI need you to analyze the following Jira ticket and create a comprehensive QA Test Plan using the RICEPOT methodology.\n\n- **Jira Ticket ID:** AW-3\n- **Jira URL:** https://rehmansabbujira.atlassian.net/browse/AW-3\n- **Testing Approach:** Risk-based testing\n- **Test Plan Format:** RICEPOT\n- **Documentation Format:** Markdown (.md)\n\n## R – Requirements Analysis\n- Read and understand the complete Jira ticket.\n- Analyze the description, business requirements, acceptance criteria, and dependencies.\n- Identify functional and non-functional requirements.\n- Identify missing, ambiguous, or conflicting requirements.\n- Identify business-critical functionality.\n- Map each requirement to relevant test scenarios.\n\n## I – Inputs\nIdentify all required inputs and test data, including:\n- Mandatory and optional fields.\n- Valid and invalid input combinations.\n- Data types and formats.\n- Minimum and maximum values.\n- Special characters and boundary values.\n- Positive and negative test data.\n- API request parameters and payloads, if applicable.\n\n## C – Conditions\nIdentify all preconditions, business rules, and execution conditions:\n- User roles and permissions.\n- Authentication and authorization.\n- Application and environment prerequisites.\n- Dependencies on other modules or services.\n- Different application states.\n- Network and browser conditions.\n- Relevant business rules and validations.\n\n## E – Expected Results\nDefine clear and measurable expected results for every test scenario:\n- Expected UI behavior.\n- Expected API response and HTTP status codes.\n- Expected database or backend behavior, where applicable.\n- Validation and error messages.\n- Successful and unsuccessful transaction behavior.\n- Data integrity and consistency.\n- Actual versus expected result validation.\n\n## P – Positive Testing\nDesign positive test scenarios covering:\n- Valid user workflows.\n- Successful business transactions.\n- Valid input combinations.\n- Expected navigation and UI behavior.\n- Successful API operations.\n- Role-based valid access.\n- End-to-end business workflows.\n\n## O – Negative Testing\nDesign negative test scenarios covering:\n- Missing mandatory fields.\n- Invalid and malformed inputs.\n- Unauthorized access.\n- Invalid user roles and permissions.\n- Incorrect API payloads.\n- Invalid HTTP methods and headers.\n- Server errors and network interruptions.\n- Duplicate submissions.\n- Unexpected application behavior.\n- Security-related validation, where applicable.\n\n## T – Testing Types and Strategy\nIdentify the relevant testing types based on the Jira requirements:\n- Functional Testing.\n- UI Testing.\n- API Testing.\n- Integration Testing.\n- End-to-End Testing.\n- Boundary Value Analysis.\n- Equivalence Partitioning.\n- Regression Testing.\n- Compatibility Testing.\n- Usability Testing.\n- Accessibility Testing.\n- Performance Testing.\n- Security Testing.\n- Automation Testing.\n\nDo not include irrelevant testing types without justification.\n\n## Test Plan Deliverables\n\nPrepare the final test plan using the following structure:\n\n1. Test Plan Overview\n2. Jira Ticket Information\n3. Requirement Analysis\n4. Scope of Testing\n5. Out of Scope\n6. RICEPOT Analysis\n7. Test Scenarios\n8. Test Data Requirements\n9. Environment and Dependencies\n10. Risk and Mitigation\n11. Entry and Exit Criteria\n12. Test Execution Strategy\n13. Regression Strategy\n14. Automation Feasibility\n15. Requirement Traceability Matrix\n16. Assumptions and Open Questions\n\n## Test Scenario Format\n\nCreate a detailed test scenario table with these columns:\n\n| Field | Description |\n|---|---|\n| Test Scenario ID | AW3_TS_001 |\n| Requirement ID | Related requirement |\n| Scenario Description | What needs to be tested |\n| RICEPOT Category | Relevant category |\n| Test Type | Functional/API/UI/etc. |\n| Priority | Critical/High/Medium/Low |\n| Preconditions | Required conditions |\n| Test Data | Required input |\n| Expected Result | Expected behavior |\n| Automation Candidate | Yes/No |\n| Remarks | Additional information |\n\n## Important Instructions\n\n1. Analyze the actual Jira ticket before creating the test plan.\n2. Do not invent requirements or business rules.\n3. Do not assume functionality that is not mentioned in the Jira ticket.\n4. Clearly identify assumptions and missing information.\n5. Cover positive, negative, boundary, and edge cases.\n6. Avoid duplicate test scenarios.\n7. Assign priorities based on business risk.\n8. Ensure complete requirement-to-test-scenario traceability.\n9. Recommend Playwright automation where applicable.\n10. Use professional QA terminology and a structured, readable Markdown format.\n\n## Final Output\n\nGenerate a comprehensive, professional QA Test Plan named:\n\n**AW-3_RICEPOT_Test_Plan.md**\n\nThe document must be detailed enough for:\n- QA review and approval.\n- Test execution.\n- Automation planning.\n- Requirement traceability.\n- Stakeholder review.\n\nBefore finalizing, perform a completeness review to ensure no important requirement or relevant test scenario has been missed."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        80,
+        -144
+      ],
+      "id": "c19fd2d0-29d4-437e-a8fc-fbe9d82d040d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        80
+      ],
+      "id": "85667b9e-28cb-4c1e-88de-ac5c944bd506",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "qkwnhZNgasAk73uu",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "### JIRA AI Agent"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -560,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "1be193ba-5723-459f-abf2-e54aa78b679e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "issueKey": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Issue_Key', ``, 'string') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.jiraTool",
+      "typeVersion": 1,
+      "position": [
+        384,
+        16
+      ],
+      "id": "d424cba5-e1f2-4e88-9cb4-f42ae34fd09e",
+      "name": "Get an issue in Jira Software",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "bCweX3gfGJNC4Yaa",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get an issue in Jira Software": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2bb6d82d-54d9-4105-9a27-5cd72e32173a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6ec4131ffa9cb076d9f6c007d59f829aa1e70a0d0551eea87e0a7cebd2bceedb"
+  },
+  "nodeGroups": [],
+  "id": "XdLZrftHOkenL4wr",
+  "tags": []
+}
