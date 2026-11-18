@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI-Powered Jira Test Strategy Generator</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+<script crossorigin src="https://unpkg.com/marked@12/marked.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; color: #1f2937;
+    background: linear-gradient(180deg, #eaf4fc 0%, #dbeafc 100%);
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif; font-size: 14px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+  .title { text-align: center; font-size: 16px; color: #6b7280; margin: 0 0 24px; }
+  .panels { display: flex; gap: 24px; align-items: flex-start; }
+  .panel {
+    flex: 1; background: #fff; border: 1px solid #d7e3f0; border-radius: 16px;
+    padding: 24px; min-height: 460px; box-shadow: 0 8px 24px rgba(70,130,200,.12);
+  }
+  .panel h2 { text-align: center; font-size: 18px; font-weight: 500; color: #6b7280; margin: 0 0 20px; }
+  .reply {
+    background: #e8f2fd; border-radius: 12px; min-height: 300px; padding: 16px;
+    display: flex; flex-direction: column; overflow: auto; max-height: 470px;
+  }
+  .reply.center { align-items: center; justify-content: center; }
+  .reply .muted { color: #6b7280; }
+  .reply .err { color: #b00020; }
+  .reply h1 { font-size: 16px; } .reply h2 { text-align: left; font-size: 14px; color: #1f2937; }
+  .reply h3 { font-size: 13px; } 
+  .reply table { border-collapse: collapse; width: 100%; margin: 8px 0; }
+  .reply th, .reply td { border: 1px solid #c3d4e8; padding: 4px 6px; text-align: left; font-size: 12px; }
+  input {
+    width: 100%; border: 1.5px solid #c3d4e8; border-radius: 10px; background: #f3f6fa;
+    padding: 10px 12px; font-size: 13px;
+  }
+  button {
+    border: none; border-radius: 10px; background: #4a9be0; color: #fff;
+    padding: 10px 16px; font-size: 13px; cursor: pointer;
+  }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button.ghost { background: #f3f6fa; color: #4b5563; border: 1.5px solid #c3d4e8; }
+  textarea {
+    width: 100%; border: 1.5px solid #c3d4e8; border-radius: 10px; background: #f3f6fa;
+    padding: 8px 10px; min-height: 110px; font-family: Consolas, Monaco, monospace;
+    font-size: 12px; resize: vertical;
+  }
+  .hint { font-size: 11px; color: #6b7280; margin: 6px 0 0; }
+  .card { border: 1px solid #d7e3f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .card .card-title { text-align: center; margin: 0 0 12px; font-size: 15px; color: #374151; }
+  .row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; gap: 8px; }
+  .row .k { color: #6b7280; } .row .v { font-weight: 600; color: #374151; word-break: break-all; text-align: right; }
+  .status { margin-top: 8px; font-size: 12px; }
+  .ok { color: #0a7d00; } .bad { color: #b00020; }
+  .btn-row { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+  a { color: #4a9be0; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const ENV_PLACEHOLDER =
+  "JIRA_BASE_URL=https://your-site.atlassian.net\n" +
+  "JIRA_EMAILID=you@example.com\n" +
+  "JIRA_TOKEN=your_atlassian_api_token\n" +
+  "GROQ_APIKEYs=your_groq_api_key";
+
+// Encode pasted .env text as a base64 header (UTF-8 safe).
+function envHeaders(envText) {
+  if (!envText || !envText.trim()) return {};
+  return { "x-env-config": btoa(unescape(encodeURIComponent(envText))) };
+}
+
+function Status({ msg }) {
+  if (!msg) return null;
+  return <div className={"status " + (msg.ok ? "ok" : "bad")}>{msg.text}</div>;
+}
+
+function MainPanel({ envText }) {
+  const [issueId, setIssueId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [strategy, setStrategy] = useState("");
+  const [issue, setIssue] = useState(null);
+  const [error, setError] = useState("");
+
+  async function submit(e) {
+    e.preventDefault();
+    if (loading) return;
+    const id = issueId.trim();
+    if (!id) { setError("Enter a Jira issue ID."); return; }
+    setLoading(true); setError(""); setStrategy(""); setIssue(null);
+    try {
+      const r = await fetch("/api/test-strategy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...envHeaders(envText) },
+        body: JSON.stringify({ issueId: id }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Request failed.");
+      setIssue(data.issue);
+      setStrategy(data.strategy);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="panel">
+      <h2>Main page</h2>
+      <div className={"reply " + (!strategy && !loading && !error ? "center" : "")}>
+        {loading && <span className="muted">Retrieving Jira issue and generating test strategy…</span>}
+        {error && <span className="err">{error}</span>}
+        {!loading && !error && !strategy && <span>Reply with Test Strategy</span>}
+        {!loading && !error && strategy && (
+          <div>
+            {issue && (
+              <div className="muted" style={{ marginBottom: 10 }}>
+                Source: <a href={issue.url} target="_blank" rel="noreferrer">{issue.key}</a> — {issue.summary}
+              </div>
+            )}
+            <div dangerouslySetInnerHTML={{ __html: marked.parse(strategy) }} />
+          </div>
+        )}
+      </div>
+      <form onSubmit={submit} style={{ marginTop: 16, display: "flex", gap: 8 }}>
+        <input
+          type="text"
+          placeholder="JIRA Ticket  e.g. AW-3"
+          value={issueId}
+          onChange={(e) => setIssueId(e.target.value)}
+          disabled={loading}
+        />
+        <button type="submit" disabled={loading}>{loading ? "Working…" : "Generate"}</button>
+      </form>
+    </div>
+  );
+}
+
+function SettingsPanel({ envText, setEnvText, appliedEnv, setAppliedEnv }) {
+  const [cfg, setCfg] = useState(null);
+  const [jira, setJira] = useState(null);
+  const [groq, setGroq] = useState(null);
+
+  useEffect(() => {
+    setCfg(null);
+    fetch("/api/config", { headers: envHeaders(appliedEnv) })
+      .then((r) => r.json()).then(setCfg).catch(() => setCfg(null));
+  }, [appliedEnv]);
+
+  async function testJira() {
+    setJira({ text: "Testing…" });
+    try {
+      const r = await fetch("/api/test-jira", { method: "POST", headers: envHeaders(appliedEnv) });
+      const d = await r.json();
+      setJira({ ok: d.ok, text: d.ok ? "Connected as " + d.user : d.error });
+    } catch (e) {
+      setJira({ ok: false, text: "Network error: " + e.message });
+    }
+  }
+
+  function testGroq() {
+    if (!cfg) { setGroq({ ok: false, text: "Config not loaded." }); return; }
+    setGroq(cfg.llm.groq.configured
+      ? { ok: true, text: "Groq key configured (" + cfg.llm.groq.model + ")" }
+      : { ok: false, text: "No Groq key found in .env" });
+  }
+
+  const j = cfg && cfg.jira;
+  const dirty = envText !== appliedEnv;
+
+  return (
+    <div className="panel">
+      <h2>Settings</h2>
+
+      <div className="card">
+        <p className="card-title">Environment (.env)</p>
+        <textarea
+          placeholder={ENV_PLACEHOLDER}
+          value={envText}
+          onChange={(e) => setEnvText(e.target.value)}
+          spellCheck="false"
+        />
+        <p className="hint">
+          Paste your .env contents above. They are sent to the backend with each request and
+          used for that request only — nothing is stored on the server or in the browser.
+        </p>
+        <div className="btn-row">
+          <button type="button" onClick={() => setAppliedEnv(envText)} disabled={!dirty && Boolean(appliedEnv)}>
+            {dirty ? "Apply .env" : "Applied"}
+          </button>
+          <button type="button" className="ghost" onClick={() => { setEnvText(""); setAppliedEnv(""); }}>Clear</button>
+        </div>
+      </div>
+
+      <div className="card">
+        <p className="card-title">JIRA Connection</p>
+        <div className="row"><span className="k">Email</span><span className="v">{j ? (j.email || "—") : "…"}</span></div>
+        <div className="row"><span className="k">URL</span><span className="v">{j ? (j.baseUrl || "—") : "…"}</span></div>
+        <div className="row"><span className="k">Token</span><span className="v">{j ? (j.tokenSet ? "Set (hidden)" : "Missing") : "…"}</span></div>
+        <div className="btn-row"><button onClick={testJira} type="button">Test Connection (button)</button></div>
+        <Status msg={jira} />
+      </div>
+
+      <div className="card">
+        <p className="card-title">LLM Configuration</p>
+        <div className="row"><span className="k">1. Ollama Connection</span><span className="v">Not configured</span></div>
+        <div className="row">
+          <span className="k">
+            2. <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer">Groq.com</a> (api Key)
+          </span>
+          <span className="v">{cfg ? (cfg.llm.groq.configured ? "Set (hidden)" : "Missing") : "…"}</span>
+        </div>
+        <div className="btn-row"><button onClick={testGroq} type="button">Test Local LLM or Test Groq.com</button></div>
+        <Status msg={groq} />
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [envText, setEnvText] = useState("");
+  const [appliedEnv, setAppliedEnv] = useState("");
+  return (
+    <div className="wrap">
+      <h1 className="title">AI-Powered Jira Test Strategy Generator</h1>
+      <div className="panels">
+        <MainPanel envText={appliedEnv} />
+        <SettingsPanel
+          envText={envText}
+          setEnvText={setEnvText}
+          appliedEnv={appliedEnv}
+          setAppliedEnv={setAppliedEnv}
+        />
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
