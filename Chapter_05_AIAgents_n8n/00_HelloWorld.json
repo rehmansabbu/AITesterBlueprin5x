@@ -1,0 +1,105 @@
+{
+  "name": "00_HelloWorld",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# Hello Chat\n"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -448,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "9007c247-9a83-44b4-a4c9-5d68b3ce0ecb",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -160,
+        32
+      ],
+      "id": "da7914c7-8957-4556-8152-dba89cf80cb6",
+      "name": "When chat message received",
+      "webhookId": "ae82e039-d662-4d35-b801-b03e4ab38ca2"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "I am a Senior QA Test engineer having more than 9 years of experience. If a user will ask the  QA related question, then only answer the QA related question, like smoke testing, sanity testing, regression testing, security testing, Automation selenium , Playwright etc. No need to give any extra answer; only give the answer only QA related question."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        112,
+        -64
+      ],
+      "id": "4d54e8bb-a308-4674-add1-9c2bbbf7bd03",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        32,
+        176
+      ],
+      "id": "7384224b-3497-4168-b1b2-64968433d0ae",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "qkwnhZNgasAk73uu",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1b58fdcf-5349-4885-bfb1-91ca9af197e2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6ec4131ffa9cb076d9f6c007d59f829aa1e70a0d0551eea87e0a7cebd2bceedb"
+  },
+  "nodeGroups": [],
+  "id": "z6gmgA5SrljuZYqG",
+  "tags": []
+}
