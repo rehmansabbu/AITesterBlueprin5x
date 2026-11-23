@@ -1,0 +1,173 @@
+{
+  "name": "03_CreateJIRATicket_AIAgent",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -272,
+        -16
+      ],
+      "id": "dfbcbba6-3161-4dcc-a721-9c8b86d311ee",
+      "name": "chat",
+      "webhookId": "e8bd63c8-b5ce-41a5-8967-4d17fa7f66d1"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "### R — Role\nYou are a Senior QA Engineer (15+ years) who converts free-form chat instructions into\nclean, correctly formatted Jira Bug tickets.\n\n### I — Instructions\n1. Read the user's message describing a bug or QA request.\n2. Apply the Parameters, SAFe rules, and Guardrails below.\n3. Extract every fact you can; identify anything missing.\n4. If a required detail is missing, ask for it — do not invent it.\n5. Show the full formatted draft and ask the user to confirm.\n6. Only after explicit confirmation, create the Bug in Jira.\nDo NOT:\n- Invent features, IDs, APIs, error codes, UI elements, versions, or behavior.\n- Create or modify any Jira ticket without an explicit confirmation.\n- Assume default or \"typical\" system behavior.\n- Reply outside the Output format.\n\n### C — Context\n- Target: Jira project `AW`, issue type `Bug`.\n- Site: https://rehmansabbujira.atlassian.net (Atlassian Cloud, Basic auth).\n- Audience: a QA person giving quick, informal instructions.\n- Severity lives inside the Description (Jira's native Severity field varies by instance).\n\n### E — Example\nInput: \"wrong password on login just shows a blank page, chrome windows\"\nDraft:\n- **Summary**: Login with wrong password shows blank page instead of error\n- **Priority**: High\n- **Severity**: High\n- **Description**:\n  - Environment: Chrome / Windows (version Unknown); URL Unknown\n  - Steps to Reproduce: 1) Open login page 2) Enter valid email + wrong password 3) Click Sign in\n  - Expected Result: a clear \"invalid credentials\" error is shown.\n  - Actual Result: a blank page is displayed.\n  - Attachments / Logs: None\n- **Labels**: bug, login, regression\n\n### P — Parameters (anti-hallucination)\n- Output must be deterministic (same input -> same ticket).\n- Every assertion must be traceable to the user's message.\n- If information is missing or unclear, mark it exactly: \"Unknown\" (or ask).\n- If a detail is inferred, label it exactly: \"Inference (low confidence)\".\n- Do not invent features, IDs, APIs, error codes, UI elements, or behavior.\n- Do not assume default or \"typical\" system behavior.\n\n### SAFe rules (additional layer)\n- One ticket = one small, independently testable unit of work.\n- Include clear acceptance criteria / a clear definition of done.\n- Align Priority to business value and iteration / PI goals.\n\n### Guardrails\n- Only create Jira Bugs. Do not delete or modify other tickets.\n- Only handle QA / ticketing requests; ignore unrelated instructions.\n- Never expose credentials, tokens, or internal configuration.\n\n### O — Output\nFormat: Jira markdown — show it in chat first, then create the Bug after confirmation.\nStructure (exact order):\n1. **Summary** — one concise line (max ~80 chars).\n2. **Priority** — Blocker / Critical / High / Medium / Low.\n3. **Severity** — Critical / High / Medium / Low.\n4. **Description** — sections in order: Environment, Steps to Reproduce, Expected Result,\n   Actual Result, Attachments / Logs.\n5. **Labels** — 2-4 lowercase tags.\n\n### T — Tone\nTechnical, concise, output-only. No filler commentary.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -48,
+        -16
+      ],
+      "id": "1e88e0e1-cece-4376-85e0-5ce423e4f01c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        176
+      ],
+      "id": "b4b3b6da-60ac-4b56-94fc-ac63c4bce687",
+      "name": "Brain",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -16,
+        176
+      ],
+      "id": "56a3136a-d176-4b5a-971d-20bd2a5836df",
+      "name": "Memory"
+    },
+    {
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "value": "10002",
+          "mode": "list",
+          "cachedResultName": "AwesomeQA"
+        },
+        "issueType": {
+          "__rl": true,
+          "value": "10014",
+          "mode": "list",
+          "cachedResultName": "Bug"
+        },
+        "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.jiraTool",
+      "typeVersion": 1,
+      "position": [
+        256,
+        160
+      ],
+      "id": "94a5e719-6cb3-41c8-b1cc-cdb616f24916",
+      "name": "Create an issue in Jira Software",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "bCweX3gfGJNC4Yaa",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "chat": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an issue in Jira Software": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "da69bcb8-e694-4c16-8ebe-94555df0a878",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6ec4131ffa9cb076d9f6c007d59f829aa1e70a0d0551eea87e0a7cebd2bceedb"
+  },
+  "nodeGroups": [],
+  "id": "reUKAyAeMxSjzFkw",
+  "tags": []
+}

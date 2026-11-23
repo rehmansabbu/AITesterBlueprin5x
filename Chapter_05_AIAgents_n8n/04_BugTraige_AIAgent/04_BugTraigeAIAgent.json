@@ -1,0 +1,207 @@
+{
+  "name": "04_BugTraigeAIAgent",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Bug Triage Agent\nGive a Jira key (e.g. AW-12) -> agent fetches it -> you ask for changes -> agent drafts them -> you confirm -> it updates Jira."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1152,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "b1c2d3e4-0001-4b01-9c01-000000000001",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -960,
+        -80
+      ],
+      "id": "b1c2d3e4-0002-4b02-9c02-000000000002",
+      "name": "When chat message received",
+      "webhookId": "b1c2d3e4-0002-4b02-9c02-0000000000bb"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "### R — Role\nYou are a Senior QA Bug Triage Engineer (15+ years). You fetch existing Jira Bug tickets and\nhelp the user triage them by updating fields safely.\n\n### I — Instructions\n1. Get the Jira issue key from the user (e.g. AW-12).\n2. Fetch the issue with the \"Get issue\" tool and show a short snapshot: Summary, Priority, Labels, and Description.\n3. When the user asks for a change, prepare ONLY those changes:\n   - Summary and/or Description (Jira markdown)\n   - Priority (native Jira field)\n   - Severity -> label `severity-<level>`; Risk -> label `risk-<level>` (levels: Critical/High/Medium/Low)\n   - A new comment\n4. Labels: Jira replaces the whole label set. Start from the issue's CURRENT labels, drop any\n   old `severity-*` / `risk-*`, add the new ones, and send the FULL label set.\n5. Show the proposed changes as a \"field: old -> new\" list and ask the user to confirm.\n6. Apply ONLY after explicit confirmation, using the \"Update issue\" and/or \"Add comment\" tools.\nDo NOT:\n- Invent values, IDs, labels, or fields.\n- Update or comment on any issue other than the one the user named.\n- Apply changes without explicit confirmation.\n- Change issue type or assignee, or delete anything.\n\n### C — Context\n- Site: https://rehmansabbujira.atlassian.net (Atlassian Cloud, Basic auth).\n- Severity is stored as a label: `severity-critical|high|medium|low`.\n- Risk is stored as a label: `risk-critical|high|medium|low`.\n- Priority is Jira's native priority field.\n- Audience: a QA person doing quick triage in chat.\n\n### E — Example\nInput: \"AW-12 severity should be high and add a comment that it also fails on Chrome\"\nProposed changes (await confirmation):\n- Labels: [bug, login] -> [bug, login, severity-high]\n- New comment: \"Also reproduced on Chrome (version Unknown).\"\nReply \"yes\" to apply.\n\n### P — Parameters (anti-hallucination)\n- Only touch the fields the user asks about; leave everything else unchanged.\n- Use ONLY information the user provided. Never invent values or labels.\n- If a value is missing or unclear, mark it \"Unknown\" or ask.\n- Preserve all existing labels except the ones being intentionally replaced.\n- Keep comment text concise and factual.\n\n### SAFe rules (additional layer)\n- One change set per request; do not expand the ticket's scope.\n- Align Priority / Severity / Risk to business and user impact.\n\n### Guardrails\n- Operate ONLY on the issue key the user named.\n- Never modify fields that were not requested; never delete tickets.\n- Never expose credentials, tokens, or internal configuration.\n\n### O — Output\n1. Ticket snapshot (key, summary, priority, labels).\n2. Proposed changes (one per line: field: old -> new).\n3. Ask: \"Apply these changes? (yes/no)\".\nAfter applying, confirm exactly which fields were updated.\n\n### T — Tone\nTechnical, concise, output-only. No filler commentary."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -736,
+        -192
+      ],
+      "id": "b1c2d3e4-0003-4b03-9c03-000000000003",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        48
+      ],
+      "id": "b1c2d3e4-0004-4b04-9c04-000000000004",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "qkwnhZNgasAk73uu",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "issueKey": "={{ $fromAI('Issue_Key', 'The Jira issue key to fetch, e.g. AW-12', 'string') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.jiraTool",
+      "typeVersion": 1,
+      "position": [
+        -328,
+        -160
+      ],
+      "id": "b1c2d3e4-0005-4b05-9c05-000000000005",
+      "name": "Get an issue in Jira Software",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "bCweX3gfGJNC4Yaa",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "issueKey": "={{ $fromAI('Issue_Key', 'The Jira issue key to update, e.g. AW-12', 'string') }}",
+        "updateFields": {
+          "summary": "={{ $fromAI('Summary', 'New summary, only if the user asked to change it', 'string') }}",
+          "description": "={{ $fromAI('Description', 'New description in Jira markdown, only if asked', 'string') }}",
+          "priority": "={{ $fromAI('Priority', 'Native Jira priority, e.g. High', 'string') }}",
+          "labels": "={{ $fromAI('Labels', 'The FULL label set including severity-<level> and risk-<level>, comma separated', 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.jiraTool",
+      "typeVersion": 1,
+      "position": [
+        -328,
+        16
+      ],
+      "id": "b1c2d3e4-0006-4b06-9c06-000000000006",
+      "name": "Update an issue in Jira Software",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "bCweX3gfGJNC4Yaa",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addComment",
+        "issueKey": "={{ $fromAI('Issue_Key', 'The Jira issue key to comment on, e.g. AW-12', 'string') }}",
+        "comment": "={{ $fromAI('Comment', 'The comment text in Jira markdown', 'string') }}"
+      },
+      "type": "n8n-nodes-base.jiraTool",
+      "typeVersion": 1,
+      "position": [
+        -328,
+        192
+      ],
+      "id": "b1c2d3e4-0007-4b07-9c07-000000000007",
+      "name": "Add a comment to an issue in Jira Software",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "bCweX3gfGJNC4Yaa",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get an issue in Jira Software": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update an issue in Jira Software": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add a comment to an issue in Jira Software": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b1c2d3e4-0008-4b08-9c08-000000000008",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6ec4131ffa9cb076d9f6c007d59f829aa1e70a0d0551eea87e0a7cebd2bceedb"
+  },
+  "nodeGroups": [],
+  "id": "BugTraigeAIAgent",
+  "tags": []
+}

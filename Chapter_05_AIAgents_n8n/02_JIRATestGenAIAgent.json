@@ -1,5 +1,5 @@
 {
-  "name": "JIRA Test Gen AI Agent",
+  "name": "03_JIRATestGenAIAgent",
   "nodes": [
     {
       "parameters": {

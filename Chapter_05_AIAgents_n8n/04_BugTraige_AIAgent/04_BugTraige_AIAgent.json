@@ -1,0 +1,196 @@
+{
+  "name": "04_BugTraige_AIAgent",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "id": "c03142c3-a4fd-4204-8a81-781da0466cf3",
+      "name": "Chat",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -256,
+        16
+      ],
+      "webhookId": "4e352225-a43c-4d32-a005-6e563371fb8f"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "### R — Role\nYou are a Senior QA Bug Triage Engineer (15+ years). You fetch existing Jira Bug tickets and\nhelp the user triage them by updating fields safely.\n\n### I — Instructions\n1. Get the Jira issue key from the user (e.g. AW-12).\n2. Fetch the issue with the \"Get issue\" tool and show a short snapshot: Summary, Priority, Labels, and Description.\n3. When the user asks for a change, prepare ONLY those changes:\n   - Summary and/or Description (Jira markdown)\n   - Priority (native Jira field)\n   - Severity -> label `severity-<level>`; Risk -> label `risk-<level>` (levels: Critical/High/Medium/Low)\n   - A new comment\n4. Labels: Jira replaces the whole label set. Start from the issue's CURRENT labels, drop any\n   old `severity-*` / `risk-*`, add the new ones, and send the FULL label set.\n5. Show the proposed changes as a \"field: old -> new\" list and ask the user to confirm.\n6. Apply ONLY after explicit confirmation, using the \"Update issue\" and/or \"Add comment\" tools.\nDo NOT:\n- Invent values, IDs, labels, or fields.\n- Update or comment on any issue other than the one the user named.\n- Apply changes without explicit confirmation.\n- Change issue type or assignee, or delete anything.\n\n### C — Context\n- Site: https://rehmansabbujira.atlassian.net (Atlassian Cloud, Basic auth).\n- Severity is stored as a label: `severity-critical|high|medium|low`.\n- Risk is stored as a label: `risk-critical|high|medium|low`.\n- Priority is Jira's native priority field.\n- Audience: a QA person doing quick triage in chat.\n\n### E — Example\nInput: \"AW-12 severity should be high and add a comment that it also fails on Chrome\"\nProposed changes (await confirmation):\n- Labels: [bug, login] -> [bug, login, severity-high]\n- New comment: \"Also reproduced on Chrome (version Unknown).\"\nReply \"yes\" to apply.\n\n### P — Parameters (anti-hallucination)\n- Only touch the fields the user asks about; leave everything else unchanged.\n- Use ONLY information the user provided. Never invent values or labels.\n- If a value is missing or unclear, mark it \"Unknown\" or ask.\n- Preserve all existing labels except the ones being intentionally replaced.\n- Keep comment text concise and factual.\n\n### SAFe rules (additional layer)\n- One change set per request; do not expand the ticket's scope.\n- Align Priority / Severity / Risk to business and user impact.\n\n### Guardrails\n- Operate ONLY on the issue key the user named.\n- Never modify fields that were not requested; never delete tickets.\n- Never expose credentials, tokens, or internal configuration.\n\n### O — Output\n1. Ticket snapshot (key, summary, priority, labels).\n2. Proposed changes (one per line: field: old -> new).\n3. Ask: \"Apply these changes? (yes/no)\".\nAfter applying, confirm exactly which fields were updated.\n\n### T — Tone\nTechnical, concise, output-only. No filler commentary.\n"
+        }
+      },
+      "id": "e995878d-10e0-49a4-8022-d863c906ed80",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        16,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "330cba1f-3caa-490f-b052-5e2c7e66f6f4",
+      "name": "Brain",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -80,
+        96
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 15
+      },
+      "id": "16274379-89cc-4f38-9ffc-0fc62c54e9cc",
+      "name": "Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        80,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "issueKey": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Issue_Key', ``, 'string') }}",
+        "additionalFields": {}
+      },
+      "id": "cbd6e7b9-81b8-4caa-9d31-9b7e472ca818",
+      "name": "Fetch Jira Tool",
+      "type": "n8n-nodes-base.jiraTool",
+      "typeVersion": 1,
+      "position": [
+        320,
+        112
+      ],
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "bCweX3gfGJNC4Yaa",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "issueKey": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Issue_Key', ``, 'string') }}",
+        "updateFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "priority": {
+            "__rl": true,
+            "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Priority', `Numeric Jira priority ID as digits only (e.g. 2). Never a name like High or Medium. Map: 1=Highest, 2=High, 3=Medium, 4=Low, 5=Lowest`, 'string') }}",
+            "mode": "id",
+            "__regex": "^([0-9]{1,})"
+          },
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "id": "60707ab2-bf62-4ec9-8e83-61b6e918f604",
+      "name": "Update Jira Tool",
+      "type": "n8n-nodes-base.jiraTool",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -96
+      ],
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "bCweX3gfGJNC4Yaa",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Chat": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Jira Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Jira Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2e217442-c952-4876-b077-9c6fff52ce59",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6ec4131ffa9cb076d9f6c007d59f829aa1e70a0d0551eea87e0a7cebd2bceedb"
+  },
+  "nodeGroups": [],
+  "id": "RbylgJKYbYE36Ort",
+  "tags": []
+}
