@@ -4,7 +4,7 @@
 - Prefers credentials/secrets to be supplied via a local gitignored `.env` file rather than pasted directly into chat. Confidence: 0.55
 - Wants web apps to let the end user enter their `.env` credentials in the UI at runtime (used per-request, nothing persisted), so the deployed app works without server-side secrets. Confidence: 0.6
 - After building a web app, wants it actually run and opened in the browser (e.g. `http://localhost:<port>`) rather than just handed off with run instructions. Confidence: 0.7
-- Wants finished work committed and pushed to the remote (`origin main`), including the whole new project folder, as the closing step of a task — not just staged locally. Confidence: 0.5
+- Wants finished work committed and pushed to the remote (`origin main`), including the whole new project folder, as the closing step of a task — not just staged locally. Confidence: 0.6
 - Prefers clean, unsuffixed project/domain names — when Vercel auto-assigned a `-ten` suffixed URL, chose to rename the project to get a tidy `*.vercel.app` domain instead of keeping the suffix. Confidence: 0.55
 - For QA/ticketing AI agents, wants system prompts to include structured methodology layers: RICEPOT (R/I/C/E/P/O/T), SAFe rules, guardrails, and anti-hallucination rules. Confidence: 0.65
 - When starting a new project, prefers to reuse the auth/credential setup already established in a previous project rather than defining a fresh one. Confidence: 0.55

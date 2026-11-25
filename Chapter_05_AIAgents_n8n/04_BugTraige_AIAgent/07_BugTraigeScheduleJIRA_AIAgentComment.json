@@ -1,0 +1,277 @@
+{
+  "name": "07_BugTraigeScheduleJIRA_AIAgentComment",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "1. Fetch a JIRA Ticket\n2. Read the Triage comments\n3. Update the JIRA Ticket with Triage Comment"
+      },
+      "id": "b5f9e37b-4b25-4793-8b4e-ab87072c6087",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2f6736c0-912d-4c18-9df7-2d612f678981",
+              "name": "IssueKey",
+              "value": "={{ $json.issue.key }}",
+              "type": "string"
+            },
+            {
+              "id": "57952fee-6c6f-4c3f-9a15-e8c6c2895d17",
+              "name": "Project",
+              "value": "={{ $json.issue.fields.project.key }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dc19445e-ad49-4021-b620-4947a0c8ddf1",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -240,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "issueKey": "={{ $json.IssueKey }}",
+        "additionalFields": {}
+      },
+      "id": "1ec9acaf-83fb-463c-8322-64550c242ba7",
+      "name": "Get an issue",
+      "type": "n8n-nodes-base.jira",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -96
+      ],
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "bCweX3gfGJNC4Yaa",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Issue key :{{ $json.key }}\n\nTitle : {{ $json.fields.summary }}\n\nDescription :{{ $json.fields.description }}",
+        "options": {
+          "systemMessage": "Based on the Issue Key, Title, and Description, \ngive me the response in JSON\n{\n\"Severity : \"\",\n\"Priority\" : \"\"\n\"Comments\": \"\" ,\n\nIn the Comments or Gaps\nmake sure in comment should be in simple do not  add anything extra not add  /n , normal text in string without add any special character\n\n\n### R — Role\nYou are a Senior QA Bug Triage Engineer (15+ years). You fetch existing Jira Bug tickets and\nhelp the user triage them by updating fields safely.\n\n### I — Instructions\n1. Get the Jira issue key from the user (e.g. AW-12).\n2. Fetch the issue with the \"Get issue\" tool and show a short snapshot: Summary, Priority, Labels, and Description.\n3. When the user asks for a change, prepare ONLY those changes:\n   - Summary and/or Description (Jira markdown)\n   - Priority (native Jira field)\n   - Severity -> label `severity-<level>`; Risk -> label `risk-<level>` (levels: Critical/High/Medium/Low)\n   - A new comment\n4. Labels: Jira replaces the whole label set. Start from the issue's CURRENT labels, drop any\n   old `severity-*` / `risk-*`, add the new ones, and send the FULL label set.\n5. Show the proposed changes as a \"field: old -> new\" list and ask the user to confirm.\n6. Apply ONLY after explicit confirmation, using the \"Update issue\" and/or \"Add comment\" tools.\nDo NOT:\n- Invent values, IDs, labels, or fields.\n- Update or comment on any issue other than the one the user named.\n- Apply changes without explicit confirmation.\n- Change issue type or assignee, or delete anything.\n\n### C — Context\n- Site: https://rehmansabbujira.atlassian.net (Atlassian Cloud, Basic auth).\n- Severity is stored as a label: `severity-critical|high|medium|low`.\n- Risk is stored as a label: `risk-critical|high|medium|low`.\n- Priority is Jira's native priority field.\n- Audience: a QA person doing quick triage in chat.\n\n### E — Example\nInput: \"AW-12 severity should be high and add a comment that it also fails on Chrome\"\nProposed changes (await confirmation):\n- Labels: [bug, login] -> [bug, login, severity-high]\n- New comment: \"Also reproduced on Chrome (version Unknown).\"\nReply \"yes\" to apply.\n\n### P — Parameters (anti-hallucination)\n- Only touch the fields the user asks about; leave everything else unchanged.\n- Use ONLY information the user provided. Never invent values or labels.\n- If a value is missing or unclear, mark it \"Unknown\" or ask.\n- Preserve all existing labels except the ones being intentionally replaced.\n- Keep comment text concise and factual.\n\n### SAFe rules (additional layer)\n- One change set per request; do not expand the ticket's scope.\n- Align Priority / Severity / Risk to business and user impact.\n\n### Guardrails\n- Operate ONLY on the issue key the user named.\n- Never modify fields that were not requested; never delete tickets.\n- Never expose credentials, tokens, or internal configuration.\n\n### O — Output\n1. Ticket snapshot (key, summary, priority, labels).\n2. Proposed changes (one per line: field: old -> new).\n3. Ask: \"Apply these changes? (yes/no)\".\nAfter applying, confirm exactly which fields were updated.\n\n### T — Tone\nTechnical, concise, output-only. No filler commentary.\n"
+        }
+      },
+      "id": "d55fadd8-ecae-4d32-aab0-fbb932066afc",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        96,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "c0350af9-9bea-41dd-8ef3-65b1c2b59c7e",
+      "name": "Brain",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        128
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1ec9f6c-b129-4019-80fc-925e6aeaf7ca",
+              "name": "IssueKey",
+              "value": "={{ $('Edit Fields').item.json.IssueKey }}",
+              "type": "string"
+            },
+            {
+              "id": "c6e82c28-8c5e-4817-b220-0914a136115c",
+              "name": "Comments",
+              "value": "={{$json.output.parseJson().Comments }}",
+              "type": "string"
+            },
+            {
+              "id": "ff4a6a77-66e1-4a03-a486-683c8d89c7da",
+              "name": "Severity",
+              "value": "={{ $json.output.parseJson().Severity }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d53618f8-df70-4596-a066-f8826d71438c",
+      "name": "Get the Triage comment",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        400,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://rehmansabbujira.atlassian.net/rest/api/3/issue/{{ $json.IssueKey }}/comment",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"body\": {\n    \"type\": \"doc\",\n    \"version\": 1,\n    \"content\": [\n      {\n        \"type\": \"paragraph\",\n        \"content\": [\n          {\n            \"type\": \"text\",\n            \"text\": \"{{ $json.Comments }}\"\n          }\n        ]\n      }\n    ]\n  }\n} ",
+        "options": {}
+      },
+      "id": "095a2565-fa8b-4eb7-bbbf-0ec9ee603d99",
+      "name": "Update the JIRA with Triage Comment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        608,
+        48
+      ],
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "bCweX3gfGJNC4Yaa",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "events": [
+          "jira:issue_created"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.jiraTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -464,
+        80
+      ],
+      "id": "81621099-7944-4c42-9f7a-db753e1afdec",
+      "name": "Jira Trigger",
+      "webhookId": "4c6c314e-91c0-43dc-bd5d-51ed3177c3fa",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "bCweX3gfGJNC4Yaa",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get an issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get an issue": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Get the Triage comment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the Triage comment": {
+      "main": [
+        [
+          {
+            "node": "Update the JIRA with Triage Comment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jira Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "90bb4d58-6050-48f1-ae50-c9bd4bfcc6a6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6ec4131ffa9cb076d9f6c007d59f829aa1e70a0d0551eea87e0a7cebd2bceedb"
+  },
+  "nodeGroups": [],
+  "id": "UGya5C13A94lATg4",
+  "tags": []
+}
