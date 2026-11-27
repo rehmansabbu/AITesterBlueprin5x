@@ -56,10 +56,16 @@ Importable n8n workflow JSON. Each agent follows the pattern
   - `04_BugTraigeAIAgent.json` — draft then confirm before applying changes
   - `06_BugTraigeAIAgentComment.json`, `07_BugTraigeScheduleJIRA_AIAgentComment.json`,
     `08_BugTraigeMultipleJIRA_AIAgentComment.json`
-- `05_RCA_AIAgent/` — placeholder for a root-cause analysis agent
+- `05_RCA_AIAgent/` — root-cause analysis agent:
+  - `09_RCA_AIAgent.json` — Jira Trigger / Chat Trigger -> AI Agent (OpenAI chat model)
+    -> GitHub commits + Sentry issues tools -> structured RCA report, posted back as a
+    Jira comment only after the issue is validated. Distinguishes confirmed facts from
+    hypotheses and reports "Root cause not confirmed." when evidence is insufficient.
 
-Each agent folder includes a `plan.md` with the build steps and the exact prompt text
-(RICEPOT layers, SAFe rules, guardrails, anti-hallucination rules) to paste into n8n.
+Each agent follows the RICEPOT system-message pattern (Role, Instructions, Context,
+Example, Parameters, Output, Tone) with SAFe rules, guardrails, and anti-hallucination
+rules; the prompt text is embedded in the workflow JSON and documented in the
+`plan.md` files where present.
 
 ## Getting Started
 
@@ -67,7 +73,7 @@ Each agent folder includes a `plan.md` with the build steps and the exact prompt
 - Node.js 18+ (Playwright framework)
 - Java 11+ and Maven (Selenium framework)
 - An [n8n](https://n8n.io/) instance (for Chapter 05 agents)
-- API keys as needed: a Groq key, and Atlassian (Jira) credentials
+- API keys as needed: a Groq key (most agents), an OpenAI key (RCA agent), and Atlassian (Jira) credentials
 
 ### Installation
 
@@ -98,6 +104,7 @@ Create a `.env` file at the repo root (it is gitignored):
 ```bash
 # LLM
 GROQ_API_KEY=your-groq-api-key
+OPENAI_API_KEY=your-openai-api-key   # RCA agent
 
 # Jira (Atlassian Cloud)
 JIRA_BASE_URL=https://your-site.atlassian.net
@@ -112,7 +119,7 @@ For the n8n agents, add the equivalent credentials in the n8n UI
 
 1. Open n8n and choose **Import Workflow**.
 2. Import a JSON from `Chapter_05_AIAgents_n8n/`.
-3. Reconnect the Groq and Jira credentials if they are not auto-mapped.
+3. Reconnect the LLM (Groq, or OpenAI for the RCA agent) and Jira credentials if they are not auto-mapped.
 4. Open the **Chat Trigger** node's chat URL and share it with your QA person.
 
 ## Project Structure
@@ -129,6 +136,9 @@ AITesterBlueprint5x/
 ├── Chapter_04_AI_Agents_Basics/
 │   └── VIBE_CODING/
 ├── Chapter_05_AIAgents_n8n/
+│   ├── 03_CreateJIRA_AIAgent/
+│   ├── 04_BugTraige_AIAgent/
+│   └── 05_RCA_AIAgent/
 ├── output/
 ├── .env                 # local secrets (gitignored)
 └── README.md
